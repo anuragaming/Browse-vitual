@@ -1,0 +1,12 @@
+name = "anura-browser"
+main = "src/index.js"
+compatibility_date = "2026-11-25"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[vars]
+APP_NAME = "Anura Browser"
+APP_VERSION = "3.0.0"
