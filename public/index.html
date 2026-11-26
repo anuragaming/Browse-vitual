@@ -26,6 +26,7 @@
     <button class="nav" id="forward" title="Forward">›</button>
     <button class="nav" id="reload" title="Reload">↻</button>
     <button class="nav" id="homeBtn" title="Home">⌂</button>
+    <button class="nav" id="openExt" title="Mở trong tab trình duyệt thật (dùng để đăng nhập)">↗</button>
     <form class="address" id="addressForm"><span>⌕</span><input id="address" placeholder="Search or enter URL" autocomplete="off" spellcheck="false"><button class="go">Go</button></form>
   </section>
   <main class="browser">
@@ -163,7 +164,7 @@ function createTab(url=null){
   frame.className = "frame";
   frame.title = "Website content";
   frame.referrerPolicy = "strict-origin-when-cross-origin";
-  frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-modals allow-downloads allow-storage-access-by-user-activation");
+  frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox allow-presentation allow-storage-access-by-user-activation");
   const tab = {id,url:null,title:"New Tab",history:[],index:-1,frame,loading:false,hookedDocument:null,handlingRedirect:false};
   frame.addEventListener("load",()=>{
     tab.loading=false;
@@ -263,7 +264,7 @@ function navigate(raw){
   tab.loading=true; $("address").value=result.url; $("home").classList.add("hidden");
   showLoading(); status("Loading website…");
   clearTimeout(loadTimer);
-  loadTimer=setTimeout(()=>{tab.loading=false;if(activeId===tab.id){hideLoading();status("Timed out or website blocks iframe");}},20000);
+  loadTimer=setTimeout(()=>{tab.loading=false;if(activeId===tab.id){hideLoading();status("Hết giờ hoặc web chặn iframe — bấm ↗ để mở tab thật");}},20000);
   saveHistory(result.url);
   tab.frame.src=result.url;
   renderTabs(); updateButtons();
@@ -298,6 +299,7 @@ function updateButtons(){
   $("back").disabled=!t||t.index<=0;
   $("forward").disabled=!t||t.index>=t.history.length-1;
   $("reload").disabled=!t?.url;
+  $("openExt").disabled=!t?.url;
 }
 function enterFocus(){focusMode=true;$("app").classList.add("focus");}
 function exitFocus(){focusMode=false;$("app").classList.remove("focus");}
@@ -319,6 +321,11 @@ $("back").addEventListener("click",()=>moveHistory(-1));
 $("forward").addEventListener("click",()=>moveHistory(1));
 $("reload").addEventListener("click",reload);
 $("homeBtn").addEventListener("click",goHome);
+$("openExt").addEventListener("click",()=>{
+  const t=getActive(); if(!t?.url)return;
+  window.open(t.url,"_blank","noopener,noreferrer");
+  status("Đã mở tab thật — đăng nhập ở đó nhé");
+});
 $("newTab").addEventListener("click",()=>createTab());
 document.querySelectorAll("[data-url]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.url)));
 
